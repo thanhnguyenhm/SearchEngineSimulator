@@ -1,6 +1,5 @@
 package pa2;
 
-import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,10 +28,13 @@ public class WebCrawler {
 
     //declare ArrayList to save all urls
     private static ArrayList<Link> urls;
+    private static ArrayList<Link> sortedUrls = new ArrayList<>();
+    private static boolean isSorted = false; // change to true after quick sort
 
     public static ArrayList<Link> getUrls() { return urls; }
+    public static ArrayList<Link> getSortedUrls() { return sortedUrls; }
 
-    //crawl
+    //--------------------------------crawl-----------------------------
     /**
      * use google to websites related to keyword
      * @param keyword
@@ -80,29 +82,32 @@ public class WebCrawler {
             resultOrder++;
         }
     }
-
+    //-------------------------------Sort-------------------------------
     /**
      * Use Quick sort to sort 30 links by total scores and set rank for each URL
      */
-    public static ArrayList<Link> sortByQuickSort() {
+    public static void sortByQuickSort() {
+        // if quick sort is already run, return and do nothing
+        if (isSorted) return;
+
         //extract total scores of each List object to array of integers
         int[] array = getTotalScoreArray();
 
         //call quick sort reverse method to sort in descending order
         QuickSort.quickSortReverse(array, 0, array.length - 1);
 
-        //put sorted total score back to ArrayList of Link and add PageRank for each Link object
-        ArrayList<Link> sorted = new ArrayList<>();
+        //put sorted total score back to sortedURLs and add PageRank for each Link object
+
         for (int j = 0; j < array.length; j++) {
             Link o = new Link(array[j]);
             o.setPageRank(j + 1);
-            sorted.add(o);
+            sortedUrls.add(o);
         }
 
         //put other elements back to ArrayList of Link according to their scores
         ArrayList<Link> copiedURL = (ArrayList<Link>) urls.clone();
 
-        for(Link elem : sorted) {
+        for(Link elem : sortedUrls) {
             for(Link elem2: copiedURL) {
                 if(elem.getTotalScore() == elem2.getTotalScore()){
                     elem.setId(elem2.getId());
@@ -112,8 +117,10 @@ public class WebCrawler {
                 }
             }
         }
-        return sorted;
+        // mark that quick sort is already called
+        isSorted = true;
     }
+    //-----------------------------update-------------------------------
     /**
      * This method using Priority Queue algorithm will update score based on
      * user input
@@ -158,6 +165,7 @@ public class WebCrawler {
         System.out.println("Error factor input. Please enter number 1 to 4");
     }
 
+    //------------------------Build BST----------------------------------
     /**
      * Build a Binary Search Tree based on total score
      */
@@ -175,7 +183,7 @@ public class WebCrawler {
     }
 
     /**
-     * Use binary search to get the URL that has the specific page rank
+     * Users can search a specific PageRank and show the specific URL using binary search
      * @param rank
      * @return Link object
      */
@@ -186,13 +194,14 @@ public class WebCrawler {
         return BinarySearchTree.treeSearch(BinarySearchTree.root, tScore).getUrl();
     }
 
+    //------------------------helper methods---------------------------
     /**
      * A method to find total score of a Link object by its rank
      * @param rank
      * @return total score
      */
     private static int convertRankToScore(int rank) {
-        for (Link elem : urls) {
+        for (Link elem : sortedUrls) {
             if (elem.getPageRank() == rank) return elem.getTotalScore();
         }
         return 0;

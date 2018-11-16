@@ -48,7 +48,6 @@ public class MyGUI extends JFrame{
     public MyGUI() {
         //keywords: an array of keywords from user input
         HashMap<String, Integer> keywords = new HashMap<>();
-
         Color blue1 = new Color(237, 243, 250);
 
         //declare layout with three panels
@@ -213,8 +212,8 @@ public class MyGUI extends JFrame{
             String output = "";
 
             //save top urls with highest scores and print it
-            ArrayList<Link> sortedLink = WebCrawler.sortByQuickSort();
-            for (Link elem : sortedLink) {
+            WebCrawler.sortByQuickSort();
+            for (Link elem : WebCrawler.getSortedUrls()) {
                 output += elem.toString(elem.getPageRank()) + "\n";
             }
 
@@ -226,13 +225,13 @@ public class MyGUI extends JFrame{
                 int rank = Integer.parseInt(input2.getText());
                 String foundURL = "Page Rank cannot be found";
 
-// Search URL from Page Rank use for loop
-//                for (Link elem : sortedLink) {
-//                    if (elem.getPageRank() == rank)
-//                        foundURL = elem.toString(rank);
-//                }
+                // Search URL from Page Rank using for loop
+                //                for (Link elem : sortedLink) {
+                //                    if (elem.getPageRank() == rank)
+                //                        foundURL = elem.toString(rank);
+                //                }
 
-                // Search URL from Page Rank use Binary Search Tree
+                // Search URL from Page Rank using Binary Search Tree
                 foundURL = WebCrawler.getURLfromPageRank(rank).toString(rank);
                 result.setText(foundURL);
             });
