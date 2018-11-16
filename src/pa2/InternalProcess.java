@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * @author Pankaj from Journal Dev
  * @author thanhnguyen: Modified and added Quicksort, BST, updateScore algorithms
  */
-public class WebCrawler {
+public class InternalProcess {
 
     //initial min and max score for random score generator
     //each score has max 100 and min 0, therefore totalScore has min 0 and
@@ -191,8 +191,24 @@ public class WebCrawler {
         // convert user input's page rank of a Link object into total score of itself because BST was built based on total score, not page rank
         int tScore = convertRankToScore(rank);
 
-        return BinarySearchTree.treeSearch(BinarySearchTree.root, tScore).getUrl();
+        return BinarySearchTree.iterativeTreeSearch(BinarySearchTree.root, tScore).getUrl();
     }
+
+    //----------------------------insert---------------------------------
+    /**
+     * Insert a Link object into ArrayList using BST
+     * @param aLink
+     */
+    public static void insertLink(Link aLink) {
+        BinarySearchTree.treeInsert(new Node(aLink.getTotalScore(), aLink));
+    }
+
+
+
+
+
+
+
 
     //------------------------helper methods---------------------------
     /**

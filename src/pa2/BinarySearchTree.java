@@ -5,6 +5,7 @@ package pa2;
  */
 public class BinarySearchTree{
     static Node root;
+    static int size = 0;
 
     public BinarySearchTree() {
         root = null;
@@ -99,6 +100,7 @@ public class BinarySearchTree{
         if (y == null) root = z;
         else if (z.key < y.key) y.left = z;
         else y.right = z;
+        size++;
     }
 
     public static void transplant(Node u, Node v) {
@@ -126,5 +128,22 @@ public class BinarySearchTree{
             y.left = z.left;
             y.left.p = y;
         }
+        size--;
+    }
+
+    /**
+     * Method to display the BST in order (descending order)
+     * @return the output String of BST
+     */
+    public static String display(Node x) {
+        String output = "";
+
+        if (x != null) {
+            output += display(x.left);
+            output += x.getUrl().toString() + "\n";
+            output += display(x.right);
+        }
+
+        return output;
     }
 }

@@ -25,6 +25,11 @@ public class Link{
         this.name = name;
     }
 
+    public Link(String name, int totalScore) {
+        this.name = name;
+        this.totalScore = totalScore;
+    }
+
     public Link(int totalScore) {
         this.totalScore = totalScore;
     }

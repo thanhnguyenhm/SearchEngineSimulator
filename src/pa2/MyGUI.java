@@ -147,21 +147,59 @@ public class MyGUI extends JFrame{
 
             // run web crawler for that keyword
             try {
-                WebCrawler.crawl(userKeyword, NUM_RESULT);
+                InternalProcess.crawl(userKeyword, NUM_RESULT);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
 
             String output = "";
 
-            for (Link s : WebCrawler.getUrls()) {
+            for (Link s : InternalProcess.getUrls()) {
                 output += s.toString() + "\n";
             }
             result.setText(output);
 
-            //build BST from 30 URLS
-            WebCrawler.buildBST();
+            //build BST from 30 URLs
+            InternalProcess.buildBST();
         });
+        //-------------------------Insert------------------------------------
+        //insertButton: add action listener for insert button
+        insertButton.addActionListener(x -> {
+            String updateStr = "";
+
+            // get Link name and total score from user and create a Link obj
+            String linkName = input3.getText();
+            int linkScore = Integer.parseInt(input4.getText());
+            Link aLink = new Link(linkName, linkScore);
+
+            // set the Link ID of new object is the size of BST + 1
+            aLink.setId(BinarySearchTree.size + 1);
+
+            // insert a Link object into the BST
+            InternalProcess.insertLink(aLink);
+
+            updateStr = BinarySearchTree.display(BinarySearchTree.root);
+
+            result.setText(updateStr);
+        });
+
+        //-------------------------Delete------------------------------------
+        //deleteButton: add action listener for delete button
+        deleteButton.addActionListener(x -> {
+            String updateStr = "";
+
+            // get total score from user
+            int linkScore = Integer.parseInt(input5.getText());
+
+            // delete a Link object into the BST
+            BinarySearchTree.treeDelete(BinarySearchTree.iterativeTreeSearch(BinarySearchTree.root, linkScore));
+
+            updateStr = BinarySearchTree.display(BinarySearchTree.root);
+
+            result.setText(updateStr);
+        });
+
+
         //-------------------------Update------------------------------------
         //updateButton: add action listener for update button
         //todo DO NOT LEAVE 3 fields blank before click Update
@@ -169,12 +207,12 @@ public class MyGUI extends JFrame{
             String updateStr = "";
 
             //call method updateScore to increase key
-            WebCrawler.updateScore(
+            InternalProcess.updateScore(
                     Integer.parseInt(scoreIncrease.getText()),
                     Integer.parseInt(factor.getText()),
                     Integer.parseInt(linkIncrease.getText()));
 
-            for (Link elem : WebCrawler.getUrls()) {
+            for (Link elem : InternalProcess.getUrls()) {
                 updateStr += elem.toString() + "\n";
             }
 
@@ -212,8 +250,8 @@ public class MyGUI extends JFrame{
             String output = "";
 
             //save top urls with highest scores and print it
-            WebCrawler.sortByQuickSort();
-            for (Link elem : WebCrawler.getSortedUrls()) {
+            InternalProcess.sortByQuickSort();
+            for (Link elem : InternalProcess.getSortedUrls()) {
                 output += elem.toString(elem.getPageRank()) + "\n";
             }
 
@@ -232,11 +270,10 @@ public class MyGUI extends JFrame{
                 //                }
 
                 // Search URL from Page Rank using Binary Search Tree
-                foundURL = WebCrawler.getURLfromPageRank(rank).toString(rank);
+                foundURL = InternalProcess.getURLfromPageRank(rank).toString(rank);
                 result.setText(foundURL);
             });
         });
-
     }
 //----------------------------------------------------------------
     public static void main(String[] args) {
