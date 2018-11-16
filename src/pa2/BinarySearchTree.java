@@ -6,6 +6,7 @@ package pa2;
 public class BinarySearchTree{
     static Node root;
     static int size = 0;
+    static int sizeTemp = 0;
 
     public BinarySearchTree() {
         root = null;
@@ -101,6 +102,7 @@ public class BinarySearchTree{
         else if (z.key < y.key) y.left = z;
         else y.right = z;
         size++;
+        sizeTemp++;
     }
 
     public static void transplant(Node u, Node v) {
@@ -129,6 +131,7 @@ public class BinarySearchTree{
             y.left.p = y;
         }
         size--;
+        sizeTemp--;
     }
 
     /**
@@ -145,5 +148,33 @@ public class BinarySearchTree{
         }
 
         return output;
+    }
+
+    /**
+     * Method to display the BST with Page Rank in order (descending order)
+     * @return the output String of BST
+     */
+    public static String displayWithRank(Node x) {
+        String output = "";
+
+        if (x != null) {
+            output += displayWithRank(x.left);
+            output += x.getUrl().toString(x.getUrl().getPageRank()) + "\n";
+            output += displayWithRank(x.right);
+        }
+
+        return output;
+    }
+
+    /**
+     * Add page rank for each Link obj in-order
+     * @param x node
+     */
+    public static void addPageRank(Node x) {
+        if (x != null) {
+            addPageRank(x.left);
+            x.getUrl().setPageRank(sizeTemp--);
+            addPageRank(x.right);
+        }
     }
 }

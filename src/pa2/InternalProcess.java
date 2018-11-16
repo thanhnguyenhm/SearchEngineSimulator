@@ -30,6 +30,7 @@ public class InternalProcess {
     private static ArrayList<Link> urls;
     private static ArrayList<Link> sortedUrls = new ArrayList<>();
     private static boolean isSorted = false; // change to true after quick sort
+    private static boolean isAdded = false; // change to true after adding PageRank
 
     public static ArrayList<Link> getUrls() { return urls; }
     public static ArrayList<Link> getSortedUrls() { return sortedUrls; }
@@ -203,13 +204,6 @@ public class InternalProcess {
         BinarySearchTree.treeInsert(new Node(aLink.getTotalScore(), aLink));
     }
 
-
-
-
-
-
-
-
     //------------------------helper methods---------------------------
     /**
      * A method to find total score of a Link object by its rank
@@ -235,5 +229,14 @@ public class InternalProcess {
             i++;
         }
         return array;
+    }
+
+    /**
+     * add Page Rank for each Link in BST
+     */
+    public static void addPageRankToBST() {
+        if (isAdded) return;
+        BinarySearchTree.addPageRank(BinarySearchTree.root);
+        isAdded = true;
     }
 }

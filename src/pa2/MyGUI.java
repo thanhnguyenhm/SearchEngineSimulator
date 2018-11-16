@@ -24,6 +24,7 @@ public class MyGUI extends JFrame{
     private JButton topResultButton;
     private JButton insertButton;
     private JButton deleteButton;
+    private JButton sortButton;
     private JLabel label;
     private JLabel label2;
     private JLabel label3;
@@ -76,6 +77,7 @@ public class MyGUI extends JFrame{
         label7 = new JLabel("   with Total Score: ");
         label8 = new JLabel("Delete URL with score: ");
         deleteButton = new JButton("Delete");
+        sortButton = new JButton("Sort using BST");
 
         //declare GUI components in center panel
         searchPanel.setLayout(new GridLayout());
@@ -113,6 +115,7 @@ public class MyGUI extends JFrame{
         topPanel.add(label8);
         topPanel.add(input5);
         topPanel.add(deleteButton);
+        topPanel.add(sortButton);
         searchPanel.add(scroller);
         bottomPanel.add(label2);
         bottomPanel.add(scoreIncrease);
@@ -191,10 +194,23 @@ public class MyGUI extends JFrame{
             // get total score from user
             int linkScore = Integer.parseInt(input5.getText());
 
-            // delete a Link object into the BST
+            // delete a Link object from the BST after searching for the Node that has the matching total score
             BinarySearchTree.treeDelete(BinarySearchTree.iterativeTreeSearch(BinarySearchTree.root, linkScore));
 
             updateStr = BinarySearchTree.display(BinarySearchTree.root);
+
+            result.setText(updateStr);
+        });
+
+        //-------------------------Sort using BST------------------------------
+        //sortButton: add action listener for sort button
+        sortButton.addActionListener(x -> {
+            // NOTE: as Insert and Delete method include sorting BST
+            // this method tries to add Page Rank for Link object in BST
+            String updateStr = "";
+
+            InternalProcess.addPageRankToBST();
+            updateStr = BinarySearchTree.displayWithRank(BinarySearchTree.root);
 
             result.setText(updateStr);
         });
