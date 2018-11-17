@@ -25,6 +25,7 @@ public class MyGUI extends JFrame{
     private JButton insertButton;
     private JButton deleteButton;
     private JButton sortButton;
+    private JButton top1Button;
     private JLabel label;
     private JLabel label2;
     private JLabel label3;
@@ -49,6 +50,7 @@ public class MyGUI extends JFrame{
     public MyGUI() {
         //keywords: an array of keywords from user input
         HashMap<String, Integer> keywords = new HashMap<>();
+        final String top1Keyword = "";
         Color blue1 = new Color(237, 243, 250);
 
         //declare layout with three panels
@@ -78,6 +80,7 @@ public class MyGUI extends JFrame{
         label8 = new JLabel("Delete URL with score: ");
         deleteButton = new JButton("Delete");
         sortButton = new JButton("Sort using BST");
+        top1Button = new JButton("Save Top 1 Keyword");
 
         //declare GUI components in center panel
         searchPanel.setLayout(new GridLayout());
@@ -116,6 +119,7 @@ public class MyGUI extends JFrame{
         topPanel.add(input5);
         topPanel.add(deleteButton);
         topPanel.add(sortButton);
+        topPanel.add(top1Button);
         searchPanel.add(scroller);
         bottomPanel.add(label2);
         bottomPanel.add(scoreIncrease);
@@ -150,7 +154,7 @@ public class MyGUI extends JFrame{
 
             // run web crawler for that keyword
             try {
-                InternalProcess.crawl(userKeyword, NUM_RESULT);
+                InternalProcess.crawl(userKeyword, NUM_RESULT, false);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -215,26 +219,41 @@ public class MyGUI extends JFrame{
             result.setText(updateStr);
         });
 
+        //--------------------Top1 Keyword---------------------------
+        //Top1Button: add action listener for Top1 button
+        top1Button.addActionListener(x -> {
+            String maxKeyword = "";
+            HashMap.Entry<String, Integer> max = null;
 
-        //-------------------------Update------------------------------------
-        //updateButton: add action listener for update button
-        //todo DO NOT LEAVE 3 fields blank before click Update
-        updateButton.addActionListener(x -> {
-            String updateStr = "";
+            // find the most popular keyword by get the largest value in the hashmap
+            for (HashMap.Entry<String, Integer> entry : keywords.entrySet()) {
 
-            //call method updateScore to increase key
-            InternalProcess.updateScore(
-                    Integer.parseInt(scoreIncrease.getText()),
-                    Integer.parseInt(factor.getText()),
-                    Integer.parseInt(linkIncrease.getText()));
-
-            for (Link elem : InternalProcess.getUrls()) {
-                updateStr += elem.toString() + "\n";
+                if (max == null || entry.getValue().compareTo(max.getValue()) > 0) {
+                    max = entry;
+                }
             }
 
-            result.setText(updateStr);
+            maxKeyword = max.getKey();
+
+            // run web crawler for that keyword
+            try {
+                InternalProcess.crawl(maxKeyword, NUM_RESULT, true);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            // show the result after crawl
+            String output = "";
+
+            for (Link s : InternalProcess.getMaxKeywordUrls()) {
+                output += s.toString() + "\n";
+            }
+            result.setText("The most popular keyword is: " + maxKeyword + "\n\n" + output);
+
+
         });
-        //------------------------TopKeyword-----------------------------
+
+        //------------------------TopKeyword----------------------
         //topKeywordButton: Add listener to Top Keyword Button
         topKeywordButton.addActionListener(e -> {
             String out = "";
@@ -259,7 +278,8 @@ public class MyGUI extends JFrame{
 
             result.setText(out);
         });
-        //--------------------------TopResult------------------------------
+
+        //--------------------------TopResult-----------------------
         //topResultButton: add action listener to topResult button
         //first time user clicks, program will show top urls after quickSort
         topResultButton.addActionListener(e -> {
@@ -290,17 +310,29 @@ public class MyGUI extends JFrame{
                 result.setText(foundURL);
             });
         });
+
+        //-------------------------Update------------------------------------
+        //updateButton: add action listener for update button
+        //todo DO NOT LEAVE 3 fields blank before click Update
+        updateButton.addActionListener(x -> {
+            String updateStr = "";
+
+            //call method updateScore to increase key
+            InternalProcess.updateScore(
+                    Integer.parseInt(scoreIncrease.getText()),
+                    Integer.parseInt(factor.getText()),
+                    Integer.parseInt(linkIncrease.getText()));
+
+            for (Link elem : InternalProcess.getUrls()) {
+                updateStr += elem.toString() + "\n";
+            }
+
+            result.setText(updateStr);
+        });
     }
 //----------------------------------------------------------------
     public static void main(String[] args) {
-
-        Instant start = Instant.now();
-
         new MyGUI();
-
-        Instant finish = Instant.now();
-        long timeElapsed = Duration.between(start, finish).toNanos();
-        System.out.println("Time to run the program in nanoseconds: " + timeElapsed);
     }
 }
 

@@ -9,11 +9,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Web Crawler retrieved on JournalDev
- * Original Link: https://www.journaldev.com/7207/google-search-from-java-program-example
- * Use JSoup to fetch data from Google Search
- * @author Pankaj from Journal Dev
- * @author thanhnguyen: Modified and added Quicksort, BST, updateScore algorithms
+ * InternalProcess of the Google Search Engine Simulator
+ * Search, sort result using Quicksort
+ * URL manipulation using BST
+ * Save top keyword's result using Bucketsort
+ * Web Crawler's author Pankaj from Journal Dev
+ * @author thanhnguyen
  */
 public class InternalProcess {
 
@@ -28,11 +29,13 @@ public class InternalProcess {
 
     //declare ArrayList to save all urls
     private static ArrayList<Link> urls;
+    private static ArrayList<Link> maxKeywordUrls;
     private static ArrayList<Link> sortedUrls = new ArrayList<>();
     private static boolean isSorted = false; // change to true after quick sort
     private static boolean isAdded = false; // change to true after adding PageRank
 
     public static ArrayList<Link> getUrls() { return urls; }
+    public static ArrayList<Link> getMaxKeywordUrls() { return maxKeywordUrls; }
     public static ArrayList<Link> getSortedUrls() { return sortedUrls; }
 
     //--------------------------------crawl-----------------------------
@@ -40,9 +43,10 @@ public class InternalProcess {
      * use google to websites related to keyword
      * @param keyword
      * @param NUM_RESULT
+     * @param isMax: when the keyword is the most popular
      * @throws IOException
      */
-    public static void crawl(String keyword, final int NUM_RESULT) throws IOException {
+    public static void crawl(String keyword, final int NUM_RESULT, boolean isMax) throws IOException {
 
         String searchURL =
                 GOOGLE_SEARCH_URL + "?q="+keyword+"&num="+NUM_RESULT;
@@ -60,6 +64,7 @@ public class InternalProcess {
         int resultOrder = 1;
 
         urls = new ArrayList<>(NUM_RESULT);
+        maxKeywordUrls = new ArrayList<>(NUM_RESULT);
 
         //generate each url and save it to an ArrayList
         for (Element result : results) {
@@ -74,10 +79,17 @@ public class InternalProcess {
             int score3 = (int)(Math.random()*((MAX - MIN)+1))+ MIN;
             int score4 = (int)(Math.random()*((MAX - MIN)+1))+ MIN;
 
-            //initiate a Link object
+            // initiate a Link object
             Link myLink = new Link(resultOrder, score1, score2, score3, score4, resultLink);
 
-            //add a link to ArrayList<Link>
+            //if keyword is the most popular keyword, add URLs to maxKeywordURLs
+            if(isMax) {
+                maxKeywordUrls.add(myLink);
+                resultOrder++;
+                continue;
+            }
+
+            // add a link to ArrayList<Link>
             urls.add(myLink);
 
             resultOrder++;
@@ -179,8 +191,8 @@ public class InternalProcess {
             BinarySearchTree.treeInsert(new Node(array[i], urls.get(i)));
         }
 
-        // for test, will print BST in console
-        BinarySearchTree.inOrderTreeWalk(BinarySearchTree.root);
+//        // for test, will print BST in console
+//        BinarySearchTree.inOrderTreeWalk(BinarySearchTree.root);
     }
 
     /**
