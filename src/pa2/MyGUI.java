@@ -34,8 +34,7 @@ public class MyGUI extends JFrame{
     private JLabel label3;
     private JLabel label4;
     private JLabel label5;
-    private JLabel empty;
-    private JLabel empty2;
+    private JLabel label9;
     private JLabel label6;
     private JLabel label7;
     private JLabel label8;
@@ -44,6 +43,7 @@ public class MyGUI extends JFrame{
     private JTextField input3;
     private JTextField input4;
     private JTextField input5;
+    private JTextField input6;
     private JTextField scoreIncrease;
     private JTextField linkIncrease;
     private JTextField factor;
@@ -75,9 +75,9 @@ public class MyGUI extends JFrame{
         input3 = new JTextField();
         input4 = new JTextField();
         input5 = new JTextField();
+        input6 = new JTextField();
         findButton = new JButton("Find URL");
-        empty = new JLabel("");
-        empty2 = new JLabel("");
+        label9 = new JLabel("   or a Total Score: ");
         label6 = new JLabel("URL to be inserted: ");
         label7 = new JLabel("   with Total Score: ");
         label8 = new JLabel("Delete URL with score: ");
@@ -110,9 +110,9 @@ public class MyGUI extends JFrame{
         topPanel.add(topKeywordButton);
         topPanel.add(label5);
         topPanel.add(input2);
+        topPanel.add(label9);
+        topPanel.add(input6);
         topPanel.add(findButton);
-        topPanel.add(empty);
-        topPanel.add(empty2);
         topPanel.add(label6);
         topPanel.add(input3);
         topPanel.add(label7);
@@ -147,6 +147,10 @@ public class MyGUI extends JFrame{
         //-------------------SearchButton---------------------------------
         //searchButton: add listener for Search button
         searchButton.addActionListener(e -> {
+
+            // Reset a tree before each search
+            RedBlackTree.reset();
+
             // get keyword from user and put it in an ArrayList
             String userKeyword = input.getText();
 
@@ -318,9 +322,22 @@ public class MyGUI extends JFrame{
 
             //findButton: add action listener for find button
             findButton.addActionListener(x -> {
-                //get page rank from user input
-                int rank = Integer.parseInt(input2.getText());
-                String foundURL = "Page Rank cannot be found";
+                boolean isRank = false;
+                int input = -1;
+
+                // get page rank/total score from user input
+                // user has to input a Rank or a Total Score (one or the other)
+                if (input2.getText().isEmpty() && !input6.getText().isEmpty()) { // if user input total score
+                    isRank = false;
+                    input = Integer.parseInt(input6.getText());
+                }
+                if (input6.getText().isEmpty() && !input2.getText().isEmpty()) { // if user input page rank
+                    isRank = true;
+                    input = Integer.parseInt(input2.getText());
+                }
+
+                String foundURL = "Invalid input. Page Rank cannot be found\n" +
+                        "Please enter a Page Rank OR a Total Score.";
 
                 // Search URL from Page Rank using for loop
                 //                for (Link elem : sortedLink) {
@@ -328,8 +345,12 @@ public class MyGUI extends JFrame{
                 //                        foundURL = elem.toString(rank);
                 //                }
 
-                // Search URL from Page Rank using Binary Search Tree
-                foundURL = InternalProcess.getURLfromPageRank(rank).toString(rank);
+                if (input != -1) {
+                    // Search URL from Page Rank/ Total score using Red Black Tree
+                    Link foundLink = InternalProcess.getURLfromPageRank(input, isRank);
+                    foundURL = foundLink.toString(foundLink.getPageRank());
+                }
+
                 result.setText(foundURL);
             });
         });

@@ -4,12 +4,13 @@ package pa3;
  * Red Black Tree implementation based on CLRS textbook
  */
 public class RedBlackTree{
-    public static RBTreeNode root;
+    public static final RBTreeNode nil = new RBTreeNode(); //sentinel
+    public static RBTreeNode root = nil;
     public static int size = 0;
     static int sizeTemp = 0;
 
     public RedBlackTree() {
-        root = null;
+        root = nil;
     }
 
     /**
@@ -17,7 +18,7 @@ public class RedBlackTree{
      * @param x node
      */
     public static void inOrderTreeWalk(RBTreeNode x) {
-        if (x != null) {
+        if (x != nil) {
             inOrderTreeWalk(x.left);
             System.out.print(x.key + " ");
             inOrderTreeWalk(x.right);
@@ -27,10 +28,10 @@ public class RedBlackTree{
     public static void leftRotate(RBTreeNode x) {
         RBTreeNode y = x.right;
         x.right = y.left;
-        if (y.left != null)
+        if (y.left != nil)
             y.left.p = x;
         y.p = x.p;
-        if (x.p == null)
+        if (x.p == nil)
             root = y;
         else if (x == x.p.left)
             x.p.left = y;
@@ -42,10 +43,10 @@ public class RedBlackTree{
     public static void rightRotate(RBTreeNode x) {
         RBTreeNode y = x.left;
         x.left = y.right;
-        if (y.right != null)
+        if (y.right != nil)
             y.right.p = x;
         y.p = x.p;
-        if (x.p == null)
+        if (x.p == nil)
             root = y;
         else if (x == x.p.left)
             x.p.left = y;
@@ -61,7 +62,7 @@ public class RedBlackTree{
      * @return RBTreeNode
      */
     public static RBTreeNode treeSearch(RBTreeNode x, int k) {
-        if (x == null || k == x.key) return x;
+        if (x == nil || k == x.key) return x;
         if (k < x.key) return treeSearch(x.left, k);
         else return treeSearch(x.right, k);
     }
@@ -73,7 +74,7 @@ public class RedBlackTree{
      * @return node
      */
     public static RBTreeNode iterativeTreeSearch(RBTreeNode x, int k) {
-        while (x != null && k != x.key) {
+        while (x != nil && k != x.key) {
             if (k < x.key) x = x.left;
             else x = x.right;
         }
@@ -86,7 +87,7 @@ public class RedBlackTree{
      * @return node
      */
     public static RBTreeNode treeMinimum(RBTreeNode x) {
-        while (x.left != null) x = x.left;
+        while (x.left != nil) x = x.left;
         return x;
     }
 
@@ -96,7 +97,7 @@ public class RedBlackTree{
      * @return node
      */
     public static RBTreeNode treeMaximum(RBTreeNode x) {
-        while (x.right != null) x = x.right;
+        while (x.right != nil) x = x.right;
         return x;
     }
 
@@ -106,9 +107,9 @@ public class RedBlackTree{
      * @return node
      */
     public static RBTreeNode treeSuccessor(RBTreeNode x) {
-        if (x.right != null) return treeMinimum(x.right);
+        if (x.right != nil) return treeMinimum(x.right);
         RBTreeNode y = x.p;
-        while (y != null && x == y.right) {
+        while (y != nil && x == y.right) {
             x = y;
             y = y.p;
         }
@@ -120,22 +121,22 @@ public class RedBlackTree{
      * @param z node
      */
     public static void treeInsert(RBTreeNode z) {
-        RBTreeNode y = null;
+        RBTreeNode y = nil;
         RBTreeNode x = root;
-        while (x != null) {
+        while (x != nil) {
             y = x;
             if (z.key < x.key)
                 x = x.left;
             else x = x.right;
         }
         z.p = y;
-        if (y == null)
+        if (y == nil)
             root = z;
         else if (z.key < y.key)
             y.left = z;
         else y.right = z;
-        z.left = null;
-        z.right = null;
+        z.left = nil;
+        z.right = nil;
         z.color = 1;
         RBInsertFixup(z);
         size++;
@@ -144,12 +145,12 @@ public class RedBlackTree{
 
     public static void RBInsertFixup(RBTreeNode z) {
         RBTreeNode y;
-        while (z.p != null && z.p.color == 1) {
+        while (z.p != nil && z.p.color == 1) {
             if (z.p == z.p.p.left) {
                 y = z.p.p.right;
-                if (y == null || y.color == 1) {
+                if (y == nil || y.color == 1) {
                     z.p.color = 0;
-                    if (y != null)
+                    if (y != nil)
                         y.color = 0;
                     z.p.p.color = 1;
                     z = z.p.p;
@@ -164,9 +165,9 @@ public class RedBlackTree{
                 }
             } else {
                 y = z.p.p.left;
-                if (y == null || y.color == 1) {
+                if (y == nil || y.color == 1) {
                     z.p.color = 0;
-                    if (y != null)
+                    if (y != nil)
                         y.color = 0;
                     z.p.p.color = 1;
                     z = z.p.p;
@@ -185,10 +186,10 @@ public class RedBlackTree{
     }
 
     public static void RBtransplant(RBTreeNode u, RBTreeNode v) {
-        if (u.p == null) root = v;
+        if (u.p == nil) root = v;
         else if (u == u.p.left) u.p.left = v;
         else u.p.right = v;
-        if (v != null)
+        if (v != nil)
             v.p = u.p;
     }
 
@@ -200,10 +201,10 @@ public class RedBlackTree{
         RBTreeNode y = z;
         RBTreeNode x;
         int yOriginalColor = y.color;
-        if (z.left == null) {
+        if (z.left == nil) {
             x = z.right;
             RBtransplant(z, z.right);
-        } else if ( z.right == null) {
+        } else if ( z.right == nil) {
             x = z.left;
             RBtransplant(z, z.left);
         } else {
@@ -222,7 +223,7 @@ public class RedBlackTree{
             y.left.p = y;
             y.color = z.color;
         }
-        if (yOriginalColor == 0)
+        if (yOriginalColor == 0 && x!= nil)
             RBTreeDeleteFixup(x);
         size--;
         sizeTemp--;
@@ -232,6 +233,7 @@ public class RedBlackTree{
         while (x != root && x.color == 0) {
             if (x == x.p.left) {
                 RBTreeNode w = x.p.right;
+                if (w == nil) return ;
                 if (w.color == 1) {
                     w.color = 0;
                     x.p.color = 1;
@@ -258,6 +260,7 @@ public class RedBlackTree{
             }
             else {
                 RBTreeNode w = x.p.left;
+                if (w == nil) return ;
                 if (w.color == 1) {
                     w.color = 0;
                     x.p.color = 1;
@@ -292,10 +295,13 @@ public class RedBlackTree{
      */
     public static String display(RBTreeNode x) {
         String output = "";
+        String colorStr = "";
+        if (x.color == 0) colorStr = "BLACK";
+        if (x.color == 1) colorStr = "RED  ";
 
-        if (x != null) {
+        if (x != nil) {
             output += display(x.left);
-            output += x.getUrl().toString() + " " + x.color + "\n";
+            output += colorStr + ". " + x.getUrl().toString() + " " + x.color + "\n";
             output += display(x.right);
         }
 
@@ -308,10 +314,13 @@ public class RedBlackTree{
      */
     public static String displayWithRank(RBTreeNode x) {
         String output = "";
+        String colorStr = "";
+        if (x.color == 0) colorStr = "BLACK ";
+        if (x.color == 1) colorStr = "RED     ";
 
-        if (x != null) {
+        if (x != nil) {
             output += displayWithRank(x.left);
-            output += x.getUrl().toString(x.getUrl().getPageRank()) + " " + x.color + "\n";
+            output += colorStr + ". " + x.getUrl().toString(x.getUrl().getPageRank()) + "\n";
             output += displayWithRank(x.right);
         }
 
@@ -323,10 +332,19 @@ public class RedBlackTree{
      * @param x node
      */
     public static void addPageRank(RBTreeNode x) {
-        if (x != null) {
+        if (x != nil) {
             addPageRank(x.left);
             x.getUrl().setPageRank(sizeTemp--);
             addPageRank(x.right);
         }
+    }
+
+    /**
+     * Reset the whole tree
+     */
+    public static void reset() {
+        root = nil;
+        size = 0;
+        sizeTemp = 0;
     }
 }

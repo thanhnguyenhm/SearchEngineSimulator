@@ -193,8 +193,6 @@ public class InternalProcess {
         // extract total scores of each List object to array of integers
         int[] array = getTotalScoreArray();
 
-        RedBlackTree aTree = new RedBlackTree();
-
         // build a RBT of total scores
         for (int i = 0; i < array.length; i++) {
             RedBlackTree.treeInsert(new RBTreeNode(array[i], urls.get(i)));
@@ -218,17 +216,32 @@ public class InternalProcess {
 //        BinarySearchTree.inOrderTreeWalk(BinarySearchTree.root);
     }
 
-    //--------------------------URL from PageRank---------------------
+    //--------------------------URL from PageRank/ TotalScore---------------------
     /**
-     * Users can search a specific PageRank and show the specific URL using Red Black Tree search
-     * @param rank
+     * Users can search a specific PageRank or TotalScore and show the specific URL using Red Black Tree search
+     * @param searchVal: can be a rank or total score
+     * @param isRank: true if user input is rank, false if user input is total score
      * @return Link object
      */
-    public static Link getURLfromPageRank(int rank) {
-        // convert user input's page rank of a Link object into total score of itself because RBT was built based on total score, not page rank
-        int tScore = convertRankToScore(rank);
+    public static Link getURLfromPageRank(int searchVal, boolean isRank) {
+        // if user input is Rank, convert user input's page rank of a Link object into total score of itself because RBT was built based on total score, not page rank
+        int tScore;
+        int rank;
+        if(isRank) { // if user input is rank
+            tScore = convertRankToScore(searchVal);
+            rank = searchVal;
+        }
+        else { // if user input is total score
+            tScore = searchVal;
+            rank = convertScoreToRank(searchVal);
+        }
 
-        return RedBlackTree.iterativeTreeSearch(RedBlackTree.root, tScore).getUrl();
+        Link result = RedBlackTree.iterativeTreeSearch(RedBlackTree.root, tScore).getUrl();
+
+        // add page rank to the return link object
+        result.setPageRank(rank);
+
+        return result;
     }
 
     //----------------------------insert---------------------------------
@@ -274,6 +287,18 @@ public class InternalProcess {
     private static int convertRankToScore(int rank) {
         for (Link elem : sortedUrls) {
             if (elem.getPageRank() == rank) return elem.getTotalScore();
+        }
+        return 0;
+    }
+
+    /**
+     * A method to find a rank of a Link object by its total score
+     * @param tScore: total score
+     * @return rank
+     */
+    private static int convertScoreToRank(int tScore) {
+        for (Link elem : sortedUrls) {
+            if (elem.getTotalScore() == tScore) return elem.getPageRank();
         }
         return 0;
     }

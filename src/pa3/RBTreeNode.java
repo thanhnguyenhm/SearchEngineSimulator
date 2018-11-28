@@ -22,6 +22,15 @@ public class RBTreeNode {
         this.color = 1;
     }
 
+    // for sentinel only
+    public RBTreeNode() {
+        this.key = -1;
+        this.left = RedBlackTree.nil;
+        this.right = RedBlackTree.nil;
+        this.p = RedBlackTree.nil;
+        this.color = 0;
+    }
+
     public Link getUrl() {
         return url;
     }
