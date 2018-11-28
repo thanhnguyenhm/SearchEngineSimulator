@@ -1,21 +1,25 @@
-package pa2;
+package pa3;
+
+import pa2.Link;
 
 /**
- * A Binary Search Tree node
+ * A Red Black Tree node
  */
-public class Node {
+public class RBTreeNode {
     public int key;
-    public Node left, right, p;
+    public int color; // BLACk is 0; RED is 1
+    public RBTreeNode left, right, p;
 
     private Link url;
 
     // Constructor
-    public Node(int key, Link url) {
+    public RBTreeNode(int key, Link url) {
         this.key = key;
         this.left = null;
         this.right = null;
         this.p = null;
         this.url = url;
+        this.color = 1;
     }
 
     public Link getUrl() {

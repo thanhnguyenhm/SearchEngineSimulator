@@ -4,14 +4,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import pa3.RBTreeNode;
+import pa3.RedBlackTree;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * InternalProcess of the Google Search Engine Simulator
  * Search, sort result using Quicksort
- * URL manipulation using BST
+ * URL manipulation using BST, RBT
  * Save top keyword's result using Bucketsort
  * Web Crawler's author Pankaj from Journal Dev
  * @author thanhnguyen
@@ -30,10 +34,12 @@ public class InternalProcess {
     //declare ArrayList to save all urls
     private static ArrayList<Link> urls;
     private static ArrayList<Link> maxKeywordUrls;
+    private static String topKeyword = "";
     private static ArrayList<Link> sortedUrls = new ArrayList<>();
     private static boolean isSorted = false; // change to true after quick sort
     private static boolean isAdded = false; // change to true after adding PageRank
 
+    public static String getTopKeyword() { return topKeyword; }
     public static ArrayList<Link> getUrls() { return urls; }
     public static ArrayList<Link> getMaxKeywordUrls() { return maxKeywordUrls; }
     public static ArrayList<Link> getSortedUrls() { return sortedUrls; }
@@ -84,6 +90,7 @@ public class InternalProcess {
 
             //if keyword is the most popular keyword, add URLs to maxKeywordURLs
             if(isMax) {
+                topKeyword = keyword;
                 maxKeywordUrls.add(myLink);
                 resultOrder++;
                 continue;
@@ -178,6 +185,22 @@ public class InternalProcess {
         System.out.println("Error factor input. Please enter number 1 to 4");
     }
 
+    //------------------------Build RBT----------------------------------
+    /**
+     * Build a Red Black Tree based on total score
+     */
+    public static void buildRBT() {
+        // extract total scores of each List object to array of integers
+        int[] array = getTotalScoreArray();
+
+        RedBlackTree aTree = new RedBlackTree();
+
+        // build a RBT of total scores
+        for (int i = 0; i < array.length; i++) {
+            RedBlackTree.treeInsert(new RBTreeNode(array[i], urls.get(i)));
+        }
+    }
+
     //------------------------Build BST----------------------------------
     /**
      * Build a Binary Search Tree based on total score
@@ -195,25 +218,51 @@ public class InternalProcess {
 //        BinarySearchTree.inOrderTreeWalk(BinarySearchTree.root);
     }
 
+    //--------------------------URL from PageRank---------------------
     /**
-     * Users can search a specific PageRank and show the specific URL using binary search
+     * Users can search a specific PageRank and show the specific URL using Red Black Tree search
      * @param rank
      * @return Link object
      */
     public static Link getURLfromPageRank(int rank) {
-        // convert user input's page rank of a Link object into total score of itself because BST was built based on total score, not page rank
+        // convert user input's page rank of a Link object into total score of itself because RBT was built based on total score, not page rank
         int tScore = convertRankToScore(rank);
 
-        return BinarySearchTree.iterativeTreeSearch(BinarySearchTree.root, tScore).getUrl();
+        return RedBlackTree.iterativeTreeSearch(RedBlackTree.root, tScore).getUrl();
     }
 
     //----------------------------insert---------------------------------
     /**
-     * Insert a Link object into ArrayList using BST
+     * Insert a Link object into ArrayList using RBT
      * @param aLink
      */
     public static void insertLink(Link aLink) {
-        BinarySearchTree.treeInsert(new Node(aLink.getTotalScore(), aLink));
+        RedBlackTree.treeInsert(new RBTreeNode(aLink.getTotalScore(), aLink));
+    }
+
+    //-----------------------Bucket Sort Company Name--------------------------
+    /**
+     * Use Bucket sort to sort Company name from top keyword URLs
+     */
+    public static ArrayList<String> bucketSortName() {
+        //create array list of string for bucket sort
+        ArrayList<String> compName = new ArrayList<>();
+
+        //extract company name from URL
+        //by using REGEX, detect URL from a string and remove the http://www. part
+        for (Link elem : maxKeywordUrls) {
+            Matcher matcher = urlPattern.matcher(elem.getName());
+            while (matcher.find()) {
+                int matchStart = matcher.start(1);
+                int matchEnd = matcher.end();
+                String out = elem.getName().substring(matchStart, matchEnd);
+                compName.add(out.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","").split("/")[0]);
+            }
+        }
+
+        //...
+
+        return compName;
     }
 
     //------------------------helper methods---------------------------
@@ -244,11 +293,18 @@ public class InternalProcess {
     }
 
     /**
-     * add Page Rank for each Link in BST
+     * add Page Rank for each Link in RBT
      */
-    public static void addPageRankToBST() {
+    public static void addPageRankToRBT() {
         if (isAdded) return;
-        BinarySearchTree.addPageRank(BinarySearchTree.root);
+        RedBlackTree.addPageRank(RedBlackTree.root);
         isAdded = true;
     }
+
+    // Pattern for recognizing a URL, based off RFC 3986
+    private static final Pattern urlPattern = Pattern.compile(
+            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+                    + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
+                    + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+            Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL);
 }

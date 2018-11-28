@@ -1,7 +1,7 @@
 package pa2;
 
 /**
- * Binary Search Tree with generics implementation
+ * Binary Search Tree implementation based on CLRS textbook
  */
 public class BinarySearchTree{
     static Node root;

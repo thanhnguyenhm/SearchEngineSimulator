@@ -1,5 +1,8 @@
 package pa2;
 
+import pa3.RBTreeNode;
+import pa3.RedBlackTree;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -79,7 +82,7 @@ public class MyGUI extends JFrame{
         label7 = new JLabel("   with Total Score: ");
         label8 = new JLabel("Delete URL with score: ");
         deleteButton = new JButton("Delete");
-        sortButton = new JButton("Sort using BST");
+        sortButton = new JButton("Sort using RBT");
         top1Button = new JButton("Save Top 1 Keyword");
 
         //declare GUI components in center panel
@@ -152,6 +155,17 @@ public class MyGUI extends JFrame{
             keywords.put(userKeyword,
                     keywords.getOrDefault(userKeyword, 0) + 1);
 
+            //check if user enter the top keyword, which has been saved before, then the program will display the result without using web crawler again
+            if (userKeyword.equals(InternalProcess.getTopKeyword())) {
+                String output = "Retrieving the result of this keyword without using web crawler... " + "\n\n";
+
+                for (Link s : InternalProcess.getMaxKeywordUrls()) {
+                    output += s.toString() + "\n";
+                }
+                result.setText(output);
+                return;
+            }
+
             // run web crawler for that keyword
             try {
                 InternalProcess.crawl(userKeyword, NUM_RESULT, false);
@@ -166,8 +180,11 @@ public class MyGUI extends JFrame{
             }
             result.setText(output);
 
-            //build BST from 30 URLs
-            InternalProcess.buildBST();
+//            //build BST from 30 URLs
+//            InternalProcess.buildBST();
+
+            //for PA3
+            InternalProcess.buildRBT();
         });
         //-------------------------Insert------------------------------------
         //insertButton: add action listener for insert button
@@ -179,13 +196,13 @@ public class MyGUI extends JFrame{
             int linkScore = Integer.parseInt(input4.getText());
             Link aLink = new Link(linkName, linkScore);
 
-            // set the Link ID of new object is the size of BST + 1
-            aLink.setId(BinarySearchTree.size + 1);
+            // set the Link ID of new object is the size of RBT + 1
+            aLink.setId(RedBlackTree.size + 1);
 
-            // insert a Link object into the BST
+            // insert a Link object into the RBT
             InternalProcess.insertLink(aLink);
 
-            updateStr = BinarySearchTree.display(BinarySearchTree.root);
+            updateStr = RedBlackTree.display(RedBlackTree.root);
 
             result.setText(updateStr);
         });
@@ -198,23 +215,23 @@ public class MyGUI extends JFrame{
             // get total score from user
             int linkScore = Integer.parseInt(input5.getText());
 
-            // delete a Link object from the BST after searching for the Node that has the matching total score
-            BinarySearchTree.treeDelete(BinarySearchTree.iterativeTreeSearch(BinarySearchTree.root, linkScore));
+            // delete a Link object from the RBT after searching for the RBTreeNode that has the matching total score
+            RedBlackTree.RBtreeDelete(RedBlackTree.iterativeTreeSearch(RedBlackTree.root, linkScore));
 
-            updateStr = BinarySearchTree.display(BinarySearchTree.root);
+            updateStr = RedBlackTree.display(RedBlackTree.root);
 
             result.setText(updateStr);
         });
 
-        //-------------------------Sort using BST------------------------------
+        //-------------------------Sort using RBT------------------------------
         //sortButton: add action listener for sort button
         sortButton.addActionListener(x -> {
-            // NOTE: as Insert and Delete method include sorting BST
-            // this method tries to add Page Rank for Link object in BST
+            // NOTE: as Insert and Delete method include sorting RBT
+            // this method tries to add Page Rank for Link object in RBT
             String updateStr = "";
 
-            InternalProcess.addPageRankToBST();
-            updateStr = BinarySearchTree.displayWithRank(BinarySearchTree.root);
+            InternalProcess.addPageRankToRBT();
+            updateStr = RedBlackTree.displayWithRank(RedBlackTree.root);
 
             result.setText(updateStr);
         });
@@ -248,8 +265,14 @@ public class MyGUI extends JFrame{
             for (Link s : InternalProcess.getMaxKeywordUrls()) {
                 output += s.toString() + "\n";
             }
-            result.setText("The most popular keyword is: " + maxKeyword + "\n\n" + output);
 
+            output += "\nList of Company Names: \n";
+            ArrayList<String> list = InternalProcess.bucketSortName();
+            for (String elem : list)
+                output += elem + "\n";
+
+            result.setText("The most popular keyword is: " + maxKeyword + "\n" +
+                    "The result below has been saved!" + "\n\n" + output);
 
         });
 
